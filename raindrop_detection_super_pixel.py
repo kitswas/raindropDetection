@@ -70,7 +70,6 @@ for filename in args.filenames:
     # Turn off ground truth detections on image
     ground_truth = False
 
-
     #######################################################################
 
     """
@@ -81,7 +80,6 @@ for filename in args.filenames:
         result: an array ready for the CNN to predict
     """
 
-
     def img_to_array(pil_image):
 
         pil_image.load()
@@ -89,13 +87,11 @@ for filename in args.filenames:
         result /= 255
         return result
 
-
     """
     Set up the structure of AlexNet CNN by using TFLearn.
     Returns:
         network: a CNN which follows the structure of AlexNet.
     """
-
 
     def create_basic_alexnet():
 
@@ -119,10 +115,9 @@ for filename in args.filenames:
         network = dropout(network, 0.5)
         network = fully_connected(network, 2, activation='softmax')
         network = regression(network, optimizer='momentum',
-                            loss='categorical_crossentropy',
-                            learning_rate=0.001)
+                             loss='categorical_crossentropy',
+                             learning_rate=0.001)
         return network
-
 
     """
     Calculates all the windows that will slide through an image.
@@ -136,14 +131,12 @@ for filename in args.filenames:
         the coordinates of top left corner of the window and its size. 
     """
 
-
     def sliding_window(image, stepSize, windowSize):
         # slide a window across the image
         for y in range(0, image.shape[0], stepSize):
             for x in range(0, image.shape[1], stepSize):
                 # yield the current window
                 yield (x, y, image[y:y + windowSize[1], x:x + windowSize[0]])
-
 
     """
     This method uses the openCV built in function to perform the super pixel algorithm
@@ -157,7 +150,6 @@ for filename in args.filenames:
     Return:
         list of detected raindrop coordinates
     """
-
 
     def super_pixel(image):
 
@@ -179,7 +171,7 @@ for filename in args.filenames:
 
         # Use the built in function to perform super pixel algorithm on the image
         seeds = cv2.ximgproc.createSuperpixelSEEDS(width, height, channels,
-                                                num_superpixels, num_levels, prior, num_histogram_bins)
+                                                   num_superpixels, num_levels, prior, num_histogram_bins)
 
         seeds.iterate(converted_img, num_iterations)
         color_img = np.zeros((height, width, 3), np.uint8)
@@ -231,7 +223,6 @@ for filename in args.filenames:
                                             biggestX, biggestY))
         return rectangle_result
 
-
     """
     Sliding window algorithm will generates too many rectangles.
     We can use the groupRectangles method to reduce overlapping rectangles.
@@ -244,7 +235,6 @@ for filename in args.filenames:
         rectangleList_after: list of optimized detected regions.
     """
     # Regularise the format of the proposed result list.
-
 
     def utilize_rectangle_list(rectangleList_before, threshold, eps):
         # Using the groupRectangles() function to shrink the rectangle list
@@ -265,7 +255,6 @@ for filename in args.filenames:
 
         return rectangleList_after
 
-
     """
     Parse the xml file that stores the ground truth raindrop locations in the image
 
@@ -275,7 +264,6 @@ for filename in args.filenames:
         list that each element contains the location of a ground truth raindrop
 
     """
-
 
     def parse_xml_file(fileName):
         xml_file = ET.parse(fileName)
@@ -307,7 +295,6 @@ for filename in args.filenames:
 
         return finalList
 
-
     """
     Retrieve the coordinates of each ground truth raindrop locations
     Args:
@@ -315,7 +302,6 @@ for filename in args.filenames:
     Returns:
         a list of coordinates for each ground truth raindrops that ready for drawing. 	
     """
-
 
     def xml_transform(xml_golden):
         xml_result = []
@@ -326,7 +312,6 @@ for filename in args.filenames:
 
             xml_result.append(sub_list)
         return xml_result
-
 
     """
     Slide the window across the image, pass each window (region of interest) into the trained AlexNet. 
@@ -340,7 +325,6 @@ for filename in args.filenames:
     Return:
         rectangle_result: a list of region of interest that classified as raindrop by the AlexNet
     """
-
 
     def cnn_find_raindrop(image, winW, winH):
         rectangle_result = []
@@ -367,19 +351,16 @@ for filename in args.filenames:
                 rectangle_result.append((x, y))
         return rectangle_result
 
-
     # Initialise the AlexNet and load the trained model for the CNN.
     alex_net = create_basic_alexnet()
     model = tflearn.DNN(alex_net)
     model.load(model_path, weights_only=True)
-
 
     # Read the image
     image = cv2.imread(image_path)
 
     # Get the proposed regions
     rectangle_result = super_pixel(image)
-
 
     # # **************** Draw Optimized Rectangles *******************
     # We don't want to draw the detection rectangles directly on the original image,
@@ -388,9 +369,8 @@ for filename in args.filenames:
 
     for element in rectangle_result:
         cv2.rectangle(clone, (element[0], element[1]),
-                    (element[2], element[3]), (0, 255, 0), 2)
+                      (element[2], element[3]), (0, 255, 0), 2)
     # *************************************************************
-
 
     # ********** Draw the rectangles that contains ground truth raindrops ********
     if ground_truth:
@@ -401,9 +381,8 @@ for filename in args.filenames:
         # *************** Draw the XML Result ********************
         for element in xml_reformat:
             cv2.rectangle(clone, (element[0], element[1]),
-                        (element[2], element[3]), (0, 0, 255), 2)
+                          (element[2], element[3]), (0, 0, 255), 2)
         # ********************************************************
-
 
     # Save the result image into a folder.
     cv2.imwrite(result_path, clone)
