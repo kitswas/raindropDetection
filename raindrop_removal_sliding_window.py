@@ -292,8 +292,9 @@ for number in args.filenames:
         ksize[0] = int(ksize[0]*0.5)
         ksize[1] = int(ksize[1]*0.5)
         # Make sure the kernel size is odd
-        if ksize[0] % 2 == 0 or ksize[1] % 2 == 0:
+        if ksize[0] % 2 == 0:
             ksize[0] += 1
+        if ksize[1] % 2 == 0:
             ksize[1] += 1
         print("Kernel size: ", ksize)
         # Blur the area of the rectangle
