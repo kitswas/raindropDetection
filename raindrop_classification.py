@@ -9,9 +9,9 @@
 #####################################################################
 
 # This script takes 1 argument indicating the image to process.
-# e.g. 
-# > python raindrop_classification.py 3 
-# will process image 3 in the raindrop_classification_images folder.  
+# e.g.
+# > python raindrop_classification.py 3
+# will process image 3 in the raindrop_classification_images folder.
 
 # This program will print the result in the command line.
 
@@ -41,80 +41,90 @@ import argparse
 # The integer number represents the number of the image to process
 parser = argparse.ArgumentParser()
 parser.add_argument('integers', metavar='N', type=int, nargs='+',
-                   help='an integer represents the number of image')
+                    help='an integer represents the number of image')
 args = parser.parse_args()
 
 
 number = args.integers[0]
 # number = 6
 
-img_name = 'raindrop_classification_images/%s.jpg' %number
+img_name = 'raindrop_classification_images/%s.jpg' % number
 
 #######################################################################
 
+
 def load_img(img_path):
-	img = Image.open(img_path)
-	return img
+    img = Image.open(img_path)
+    return img
+
 
 """
 resize the loaded image into uniform size.
 """
+
+
 def resize_img(in_image, new_width, new_height, out_image=None,
-                 resize_mode=Image.ANTIALIAS):
+               resize_mode=Image.ANTIALIAS):
     img = in_image.resize((new_width, new_height), resize_mode)
     if out_image:
         img.save(out_image)
     return img
 
+
 """
 Convert the PIL Image object into array.
 Args:
-	pil_image: PIL image object
+    pil_image: PIL image object
 Returns:
-	result: an array ready for the CNN to predict
+    result: an array ready for the CNN to predict
 """
+
+
 def img_to_array(pil_image):
     pil_image.load()
     result = np.asarray(pil_image, dtype="float32")
     result /= 255
     return result
 
+
 """
 Set up the structure of AlexNet CNN by using TFLearn.
 Returns:
-	network: a CNN which follows the structure of AlexNet.
+    network: a CNN which follows the structure of AlexNet.
 """
+
+
 def create_basic_alexnet():
 
-	# Building network as per architecture in [Guo/Breckon, 2018]
+    # Building network as per architecture in [Guo/Breckon, 2018]
 
-	network = input_data(shape=[None, 30, 30, 3])
-	network = conv_2d(network, 96, 11, strides=4, activation='relu')
-	network = max_pool_2d(network, 3, strides=2)
-	network = local_response_normalization(network)
-	network = conv_2d(network, 256, 5, activation='relu')
-	network = max_pool_2d(network, 3, strides=2)
-	network = local_response_normalization(network)
-	network = conv_2d(network, 384, 3, activation='relu')
-	network = conv_2d(network, 384, 3, activation='relu')
-	network = conv_2d(network, 256, 3, activation='relu')
-	network = max_pool_2d(network, 3, strides=2)
-	network = local_response_normalization(network)
-	network = fully_connected(network, 4096, activation='tanh')
-	network = dropout(network, 0.5)
-	network = fully_connected(network, 4096, activation='tanh')
-	network = dropout(network, 0.5)
-	network = fully_connected(network, 2, activation='softmax')
-	network = regression(network, optimizer='momentum', 
-		loss='categorical_crossentropy', learning_rate=0.001)
-		
-	return network
+    network = input_data(shape=[None, 30, 30, 3])
+    network = conv_2d(network, 96, 11, strides=4, activation='relu')
+    network = max_pool_2d(network, 3, strides=2)
+    network = local_response_normalization(network)
+    network = conv_2d(network, 256, 5, activation='relu')
+    network = max_pool_2d(network, 3, strides=2)
+    network = local_response_normalization(network)
+    network = conv_2d(network, 384, 3, activation='relu')
+    network = conv_2d(network, 384, 3, activation='relu')
+    network = conv_2d(network, 256, 3, activation='relu')
+    network = max_pool_2d(network, 3, strides=2)
+    network = local_response_normalization(network)
+    network = fully_connected(network, 4096, activation='tanh')
+    network = dropout(network, 0.5)
+    network = fully_connected(network, 4096, activation='tanh')
+    network = dropout(network, 0.5)
+    network = fully_connected(network, 2, activation='softmax')
+    network = regression(network, optimizer='momentum',
+                         loss='categorical_crossentropy', learning_rate=0.001)
+
+    return network
 
 
-original= cv2.imread(img_name)
-cv2.namedWindow('image',cv2.WINDOW_NORMAL)
-cv2.resizeWindow('image', 30,30)
-cv2.imshow('image',original)
+original = cv2.imread(img_name)
+cv2.namedWindow('image', cv2.WINDOW_NORMAL)
+cv2.resizeWindow('image', 30, 30)
+cv2.imshow('image', original)
 
 
 original_img = load_img(img_name)
@@ -127,17 +137,18 @@ imgs.append(tensor_image)
 # Set up the trained AlexNet
 alex_net = create_basic_alexnet()
 model = tflearn.DNN(alex_net)
-model.load('Model/alexRainApr12.tfl', weights_only = True)
+model.load('Model/alexRainApr12.tfl', weights_only=True)
 
 
 # pass the image into AlexNet
 predict_result = model.predict(imgs)
-final_result = np.argmax(predict_result[0]) # return the index of the max number in a list
+# return the index of the max number in a list
+final_result = np.argmax(predict_result[0])
 
 
-classes = {1 : 'Raindrop', 0  : 'Not Raindrop'}
+classes = {1: 'Raindrop', 0: 'Not Raindrop'}
 
-print("For image %s.jpg" %number)
+print("For image %s.jpg" % number)
 print("Numerical Result Data is: ")
 print(predict_result)
 
@@ -145,8 +156,3 @@ print("AlexNet predict this picture is " + str(classes[int(final_result)]))
 
 
 cv2.waitKey(0)
-
-
-
-
-
