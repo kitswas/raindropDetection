@@ -49,23 +49,23 @@ parser.add_argument('filenames', metavar='N', type=str, nargs='+',
                     help='the filenames of the images to process')
 args = parser.parse_args()
 
-for number in args.filenames:
+for filename in args.filenames:
 
 #######################################################################
 
     # Image path
-    image_path = "raindrop_detection_images/%s" % number
+    image_path = "raindrop_detection_images/%s" % filename
 
     # Path to output the result image after raindrop detection
-    result_path = "sliding_window_results/%s" % number
+    result_path = "sliding_window_results/%s" % filename
 
     # Path to the xml file that contains the ground truth data
-    ground_truth_xml_path = "ground_truth_labels/%s.xml" % number
+    ground_truth_xml_path = "ground_truth_labels/%s.xml" % filename
 
     # Path of the trained model for AlexNet
     model_path = 'Model/alexRainApr06.tfl'
 
-    # Turn on ground truth detections on image
+    # Turn off ground truth detections on image
     ground_truth = False
 
 
