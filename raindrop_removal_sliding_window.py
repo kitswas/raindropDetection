@@ -57,7 +57,7 @@ for number in args.filenames:
     image_path = "raindrop_detection_images/%s" % number
 
     # Path to output the result image after raindrop detection
-    result_path = "removal_results/%s" % number
+    result_path = "removal_sliding_window/%s" % number
 
     # Path to the xml file that contains the ground truth data
     ground_truth_xml_path = "ground_truth_labels/%s.xml" % number
