@@ -288,11 +288,14 @@ for number in args.filenames:
     blurred = clone
 
     for element in new_rectangle_list:
-        ksize = [element[2]-element[0], element[3]-element[1]]
+        ksize = [abs(element[2]-element[0]), abs(element[3]-element[1])]
+        ksize[0] = int(ksize[0]*0.5)
+        ksize[1] = int(ksize[1]*0.5)
         # Make sure the kernel size is odd
         if ksize[0] % 2 == 0 or ksize[1] % 2 == 0:
             ksize[0] += 1
             ksize[1] += 1
+        print("Kernel size: ", ksize)
         # Blur the area of the rectangle
         blurred[element[1]:element[3], element[0]:element[2]] = cv2.GaussianBlur(
             blurred[element[1]:element[3], element[0]:element[2]], tuple(ksize), 0)
